@@ -5,6 +5,12 @@ class Plateau():
         self.height = 8
         self.width = 8
         self.grid = None
+        self.white_pieces= {
+            "♚", "♛", "♜", "♝", "♞", "♟",
+            }
+        self.black_pieces = {
+            "♔", "♕", "♖", "♗", "♘", "♙",
+            }
     
     def set_grid(self):
         grid = [['' for _ in range(self.width)] for _ in range(self.height)]
