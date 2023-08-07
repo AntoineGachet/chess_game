@@ -1,6 +1,8 @@
 from piece import Piece 
+from mouvement import Mouvements
+from joueurs import Joueurs
 
-class Plateau():
+class Plateau(Joueurs):
     def __init__(self):
         self.height = 8
         self.width = 8
@@ -13,16 +15,38 @@ class Plateau():
             }
     
     def set_grid(self):
-        grid = [['' for _ in range(self.width)] for _ in range(self.height)]
+        grid = [        
+                ["♖ ", "♘ ", "♗ ", "♔ ", "♕ ", "♗ ", "♘ ", "♖ ", ],
+                ["♙ ", "♙ ", "♙ ", "♙ ", "♙ ", "♙ ", "♙ ", "♙ ",],
+                ["  ", "  ", "  ", "  ", "  ", "  ", "  ", "  "],
+                ["  ", "  ", "  ", "  ", "  ", "  ", "  ", "  "],
+                ["  ", "  ", "  ", "  ", "  ", "  ", "  ", "  "],
+                ["  ", "  ", "  ", "  ", "  ", "  ", "  ", "  "],
+                ["♟ ", "♟ ", "♟ ", "♟ ", "♟ ", "♟ ", "♟ ", "♟ ",],
+                ["♜ ", "♞ ", "♝ ", "♚ ", "♛ ", "♝ ", "♞ ", "♜ "],
+            ]
         self.grid = grid
         
-    
+    def update_grid(self, from_, to_):
+        lines = self.grid[::]
+
+        # Update the board with the new piece position
+        lines[8 - from_[0]] = lines[8 - from_[0]][:from_[1]] + '  ' + lines[8 - from_[0]][from_[1] + 2:]
+        lines[8 - to_[0]] = lines[8 - to_[0]][:to_[1]] + lines[8 - from_[0]][from_[1]:from_[1] + 2] + lines[8 - to_[0]][to_[1] + 2:]
+
     def display_grid(self):
-        for column in self.grid:
-            print(column)
+        files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+        print("    " + "    ".join(files))
+        print("  +" + "+".join(["----"] * 8) + "+")
+        for rank, row in enumerate(self.grid):
+            rank_display = str(8 - rank)
+            row_display = " | ".join([piece if piece else "  " for piece in row])
+            print(f"{rank_display} | {row_display} | {rank_display}")
+            print("  +" + "+".join(["----"] * 8) + "+")
+        print("    " + "    ".join(files))
     
     def __repr__(self):
-       return f'{self.grid}' 
+       return self.display_grid()
 
 grid = Plateau()
 
