@@ -1,9 +1,9 @@
-class Piece:
+from plateau import Plateau
 
-    def __init__(self, piece_team, pos):
+class Piece(Plateau):
+    def __init__(self, piece_team):
         self.piece_team = piece_team
-        self.pos = pos
-    
+
     def rook(self):
         dir = {
             (u, 0) for u in range(-8, 9)
@@ -53,7 +53,7 @@ class Piece:
         return dir, front
     
     def pawn(self):
-        if self.piece_team == 'white':
+        if self.piece_team == 'w':
             dir = {(2,0), (1, 0)}
         else:
             dir = {(-2, 0), (-1, 0)} 

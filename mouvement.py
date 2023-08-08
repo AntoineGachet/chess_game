@@ -1,21 +1,26 @@
 from piece import Piece
 
 class Mouvements(Piece):
-    def __init__(self, move):
-        self.available_move = []
+    def __init__(self, move, turn, plateau_instance):
         self.move = move
         self.from_move = self.move[0]
         self.to_move = self.move[1]
+        self.turn = 'b' if turn%2 == 1 else 'w'
+        self.plateau_instance = plateau_instance
 
     def translate_mov(self, pos):
         x, y = pos
         try:
-            x =int(x)
+            x_int = int(x)
         except ValueError:
-            x = ord(x) -90
+            x_int = None
+            
+        if x_int is None:
+            x = ord(x) - 97  # Adjusted for lowercase letters
             y = int(y)
-            return x, y
-        y = ord(y) - 90
+        else:
+            x = x_int
+            y = ord(y) - 97  # Adjusted for lowercase letters
         return x, y
 
     def outside_board(self, x, y):
@@ -27,8 +32,8 @@ class Mouvements(Piece):
     
     def wrong_team(self):
         x, y = self.from_move
-
-        if self.grid[x][y].piece_team != self.team:
+        print(self.plateau_instance.grid,'je ne comprends pas')
+        if self.plateau_instance.grid[x][y].piece_team != self.turn:
             return False
 
     def can_move(self, from_x, from_y, to_x, to_y):
@@ -40,7 +45,7 @@ class Mouvements(Piece):
 
         if self.outside_board(to_x, to_y):
             return False
-        
+
         if self.wrong_team():
             return False
 
@@ -50,8 +55,8 @@ class Mouvements(Piece):
         if not vector in self.dir:
             return False
 
-        if self.grid[to_x][to_y] != "":
-            if self.grid[to_x][to_y].team == self.team:
+        if self.grid[to_x][to_y] != None:
+            if self.grid[to_x][to_y].piece_team == self.turn:
                 return False
 
         return True
