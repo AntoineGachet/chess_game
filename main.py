@@ -21,6 +21,7 @@ black = [
     Piece('b', ('e', 7)).pawn(),
     Piece('b', ('f', 7)).pawn(),
     Piece('b', ('g', 7)).pawn(),
+    Piece('b', ('h', 7)).pawn(),
 ]
 
 white = [
@@ -39,15 +40,17 @@ white = [
     Piece('w', ('e', 7)).pawn(),
     Piece('w', ('f', 7)).pawn(),
     Piece('w', ('g', 7)).pawn(),
+    Piece('w', ('h', 7)).pawn(),
 ]
 
 board = Plateau()
-board.set_grid()
+board.set_grid(white, black)
 player_1 = Joueurs('w')
 player_2 = Joueurs('b')
 
 def main():
     while not check_mated:
+        board.display_grid()
         move_1 = player_1.ask_move()
         mouvements = Mouvements(move_1)
         x_1, y_1 = mouvements.translate_mov((move_1[0]))

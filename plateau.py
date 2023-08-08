@@ -14,16 +14,16 @@ class Plateau(Joueurs):
             "♔", "♕", "♖", "♗", "♘", "♙",
             }
     
-    def set_grid(self):
+    def set_grid(self, white_pieces, black_pieces):
         grid = [        
-                ["♖ ", "♘ ", "♗ ", "♔ ", "♕ ", "♗ ", "♘ ", "♖ ", ],
-                ["♙ ", "♙ ", "♙ ", "♙ ", "♙ ", "♙ ", "♙ ", "♙ ",],
-                ["  ", "  ", "  ", "  ", "  ", "  ", "  ", "  "],
-                ["  ", "  ", "  ", "  ", "  ", "  ", "  ", "  "],
-                ["  ", "  ", "  ", "  ", "  ", "  ", "  ", "  "],
-                ["  ", "  ", "  ", "  ", "  ", "  ", "  ", "  "],
-                ["♟ ", "♟ ", "♟ ", "♟ ", "♟ ", "♟ ", "♟ ", "♟ ",],
-                ["♜ ", "♞ ", "♝ ", "♚ ", "♛ ", "♝ ", "♞ ", "♜ "],
+                [pieces for pieces in black_pieces[:8:]],
+                [pawns for pawns in black_pieces[8::]],
+                [None, None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None],
+                [pawns for pawns in white_pieces[8::]],
+                [pieces for pieces in white_pieces[:8:]],
             ]
         self.grid = grid
         
@@ -31,7 +31,7 @@ class Plateau(Joueurs):
         lines = self.grid[::]
 
         # Update the board with the new piece position
-        lines[8 - from_[0]] = lines[8 - from_[0]][:from_[1]] + '  ' + lines[8 - from_[0]][from_[1] + 2:]
+        lines[8 - from_[0]] = lines[8 - from_[0]][:from_[1]] + None + lines[8 - from_[0]][from_[1] + 2:]
         lines[8 - to_[0]] = lines[8 - to_[0]][:to_[1]] + lines[8 - from_[0]][from_[1]:from_[1] + 2] + lines[8 - to_[0]][to_[1] + 2:]
 
     def display_grid(self):
@@ -40,7 +40,8 @@ class Plateau(Joueurs):
         print("  +" + "+".join(["----"] * 8) + "+")
         for rank, row in enumerate(self.grid):
             rank_display = str(8 - rank)
-            row_display = " | ".join([piece if piece else "  " for piece in row])
+            row_display = " | ".join([piece[1] if piece is not None else "  " for piece in row])
+            # [" " if pi]
             print(f"{rank_display} | {row_display} | {rank_display}")
             print("  +" + "+".join(["----"] * 8) + "+")
         print("    " + "    ".join(files))
@@ -49,6 +50,3 @@ class Plateau(Joueurs):
        return self.display_grid()
 
 grid = Plateau()
-
-grid.set_grid()
-grid.display_grid()
