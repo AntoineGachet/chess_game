@@ -1,27 +1,25 @@
+from piece import Rook, Knight, Bishop, King, Queen, Pawn
+from joueurs import Joueurs
+
 class Plateau:
-    
     def __init__(self):
-        self.grid = None
-
-    def set_grid(self, white_pieces, black_pieces):
-        grid = [        
-                [pieces for pieces in black_pieces[:8:]],
-                [pawns for pawns in black_pieces[8::]],
+        self.grid = [        
+                [None, None, None, None, None, Pawn('b', 'P '), None, None],
                 [None, None, None, None, None, None, None, None],
+                [None, Pawn('b', 'P '), None, None, None, None, Pawn('b', 'P '), None],
                 [None, None, None, None, None, None, None, None],
+                [None, None, None, Pawn('b', 'P '), None, None, None, None],
+                [None, Pawn('b', 'P '), None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None],
-                [None, None, None, None, None, None, None, None],
-                [pawns for pawns in white_pieces[8::]],
-                [pieces for pieces in white_pieces[:8:]],
+                [None, None, None, None, Queen('w', 'Q '), None, None, Pawn('b', 'P ')],
             ]
-        self.grid = grid
-        
-    def update_grid(self, from_, to_):
-        lines = self.grid[::]
+        self.joueur_1 = Joueurs('w')
+        self.joueur_2 = Joueurs('b')
 
+    def update_grid(self, from_x, from_y, to_x, to_y):
         # Update the board with the new piece position
-        lines[8 - from_[0]] = lines[8 - from_[0]][:from_[1]] + None + lines[8 - from_[0]][from_[1] + 2:]
-        lines[8 - to_[0]] = lines[8 - to_[0]][:to_[1]] + lines[8 - from_[0]][from_[1]:from_[1] + 2] + lines[8 - to_[0]][to_[1] + 2:]
+        self.grid[to_y][to_x] = self.grid[from_y][from_x]
+        self.grid[from_y][from_x] = None
 
     def display_grid(self):
         files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
@@ -31,12 +29,55 @@ class Plateau:
 
         for rank, row in enumerate(self.grid):
             rank_display = str(8 - rank)
-            row_display = " | ".join([piece[1] if piece is not None else "  " for piece in row])
+            row_display = " | ".join([piece.type if piece is not None else "  " for piece in row])
 
             print(f"{rank_display} | {row_display} | {rank_display}")
             print("  +" + "+".join(["----"] * 8) + "+")
 
         print("    " + "    ".join(files))
     
+    def translate_move(self, pos):
+        x, y = pos
+        try:
+            x_int = 8 - int(x)
+        except ValueError:
+            x_int = None
+            
+        if x_int is None:
+            x = ord(x) - 97  # Adjusted for lowercase letters
+            y = 8 - int(y)
+            
+            return x, y
+        else:
+            x = x_int
+            y = ord(y) - 97  # Adjusted for lowercase letters
+            
+            return x, y
+    
+    def play(self):
+        self.display_grid()
+        move_from, move_to = self.joueur_1.ask_move()
+        from_x, from_y = self.translate_move(move_from)
+        to_x, to_y = self.translate_move(move_to)
+        piece = self.grid[from_y][from_x]
+        vector = piece.get_dir(from_x, from_y, to_x, to_y)
+        if not piece.valid_move(vector):
+            print("error: this piece cannot move like that")
+            return False
+        
+        if not piece.piece_in_between(self.grid, from_x, from_y, to_x, to_y, vector):
+            print("error: your piece cannot jump other pieces")
+            return False
+
+        if piece.valid_tile(self.grid, to_x, to_y) is not True:
+            print("error: this piece is already occupied by one of your piece")
+            return False
+                    
+        self.update_grid(from_x, from_y, to_x, to_y)            
+
     def __repr__(self):
        return self.display_grid()
+
+board = Plateau()
+while True:
+    board.play()
