@@ -25,13 +25,12 @@ class Piece:
         return True
 
 
-
 class Rook(Piece):
-    def __init__(self, piece_team, piece_type):
+    def __init__(self, piece_team, piece_type, played=False):
         super().__init__(piece_team, piece_type)
         self.piece_team = piece_team
-
         self.type = piece_type
+        self.played = played
 
     def valid_move(self, vector):
         vect_x = vector[0]
@@ -45,6 +44,7 @@ class Rook(Piece):
         # we need to handle the case where the dist is 1 and there is a piece
         dist = self.get_dist(vector)
         if dist == 1:
+            self.played = True
             return True
 
         # go right
@@ -74,6 +74,7 @@ class Rook(Piece):
                 if grid[y][from_x] is not None:
                     return False
         
+        self.played = True
         return True
 
 
@@ -143,21 +144,47 @@ class Bishop(Piece):
 
 
 class King(Piece):
-    def __init__(self, piece_team, piece_type):
+    def __init__(self, piece_team, piece_type, played=False):
         super().__init__(piece_team, piece_type)
         self.piece_team = piece_team
         self.type = piece_type
+        self.played = played
 
         
     def valid_move(self, vector):
+        vect_x = vector[0]
         dist = self.get_dist(vector)
         # king can only move one tile at a time
         if dist == 1:
+            self.played = True
             return True
+        
+        # if the king wants to castle
+        if abs(vect_x) == 2:
+            if not self.played:
+                self.played = True
+                return True
+            else:
+                return False
     
     def piece_in_between(self, grid, from_x, from_y, to_x, to_y, vector):
-        return True
-
+        dist = self.get_dist(vector)
+        if dist == 1:
+            return True
+        
+        # castle to the right
+        if vector[0] > 0:
+            for tiles in grid[from_y][5:6]:
+                if tiles is not None:
+                    return False
+        
+        # castle to the left
+        if vector[0] < 0:
+            for tiles in grid[from_y][3:1:-1]:
+                if tiles is not None:
+                    print(tiles)
+                    return False
+        return ''
 
 class Queen(Piece):
     def __init__(self, piece_team, piece_type):

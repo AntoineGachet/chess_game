@@ -11,10 +11,34 @@ class Plateau:
                 [None, None, None, Pawn('b', 'P '), None, None, None, None],
                 [None, Pawn('b', 'P '), None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None],
-                [None, None, None, None, Queen('w', 'Q '), None, None, Pawn('b', 'P ')],
+                [Rook('w', 'r '), None, None, None, King('b', 'k '), None, None, Rook('b', 'r ', True)],
             ]
         self.joueur_1 = Joueurs('w')
         self.joueur_2 = Joueurs('b')
+
+    def castle(self, grid, from_x, from_y, to_x, to_y, vector):
+        vect_x = vector[0]
+
+        if vect_x < 0:
+            if grid[from_y][0].piece_team != grid[from_y][from_x].piece_team:
+                print('You cannot castle with an enemy piece')
+                return False
+            if grid[from_y][0].played:
+                print('Your rook was already moved')
+                return False
+            self.update_grid(from_x, from_y, to_x, from_y)
+            self.update_grid(0, from_y, 3, from_y)
+            
+        elif vect_x > 0:
+            if grid[from_y][7].piece_team != grid[from_y][from_x].piece_team:
+                print('You cannot castle with an enemy piece')
+                return False
+            if grid[from_y][7].played:
+                print('Your rook was already moved')
+                return False
+            self.update_grid(from_x, from_y, to_x, from_y)
+            self.update_grid(7, from_y, 5, from_y)
+        return True
 
     def update_grid(self, from_x, from_y, to_x, to_y):
         # Update the board with the new piece position
@@ -66,10 +90,16 @@ class Plateau:
             return False
         
         if not piece.piece_in_between(self.grid, from_x, from_y, to_x, to_y, vector):
-            print("error: your piece cannot jump other pieces")
-            return False
+            # the only one returning an empty string is the king trying to castle
+            if piece.piece_in_between(self.grid, from_x, from_y, to_x, to_y, vector) == '':
+                self.castle(self.grid, from_x, from_y, to_x, to_x, vector)
+                return True
 
-        if piece.valid_tile(self.grid, to_x, to_y) is not True:
+            else:
+                print("error: your piece cannot jump other pieces")
+                return False
+
+        if not piece.valid_tile(self.grid, to_x, to_y):
             print("error: this piece is already occupied by one of your piece")
             return False
                     
