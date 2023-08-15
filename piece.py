@@ -1,6 +1,6 @@
 class Piece:
-    def __init__(self, piece_team, piece_type):
-        self.piece_team = piece_team
+    def __init__(self, team, piece_type):
+        self.team = team
 
         self.type = piece_type
 
@@ -20,15 +20,15 @@ class Piece:
         tile = grid[to_y][to_x]
         if tile is None:
             return True
-        if tile.piece_team == self.piece_team:
+        if tile.team == self.team:
             return False
         return True
 
 
 class Rook(Piece):
-    def __init__(self, piece_team, piece_type, played=False):
-        super().__init__(piece_team, piece_type)
-        self.piece_team = piece_team
+    def __init__(self, team, piece_type, played=False):
+        super().__init__(team, piece_type)
+        self.team = team
         self.type = piece_type
         self.played = played
 
@@ -79,9 +79,9 @@ class Rook(Piece):
 
 
 class Knight(Piece):
-    def __init__(self, piece_team, piece_type):
-        super().__init__(piece_team, piece_type)
-        self.piece_team = piece_team
+    def __init__(self, team, piece_type):
+        super().__init__(team, piece_type)
+        self.team = team
         self.type = piece_type
 
 
@@ -100,9 +100,9 @@ class Knight(Piece):
 
 
 class Bishop(Piece):
-    def __init__(self, piece_team, piece_type):
-        super().__init__(piece_team, piece_type)
-        self.piece_team = piece_team
+    def __init__(self, team, piece_type):
+        super().__init__(team, piece_type)
+        self.team = team
         self.type = piece_type
 
         
@@ -144,9 +144,9 @@ class Bishop(Piece):
 
 
 class King(Piece):
-    def __init__(self, piece_team, piece_type, played=False):
-        super().__init__(piece_team, piece_type)
-        self.piece_team = piece_team
+    def __init__(self, team, piece_type, played=False):
+        super().__init__(team, piece_type)
+        self.team = team
         self.type = piece_type
         self.played = played
 
@@ -187,13 +187,13 @@ class King(Piece):
         return ''
 
 class Queen(Piece):
-    def __init__(self, piece_team, piece_type):
-        super().__init__(piece_team, piece_type)
-        self.piece_team = piece_team
+    def __init__(self, team, piece_type):
+        super().__init__(team, piece_type)
+        self.team = team
         self.type = piece_type
 
-        self.bishop_instance = Bishop(piece_team, 'n')
-        self.rook_instance = Rook(piece_team, 'b')
+        self.bishop_instance = Bishop(team, 'n')
+        self.rook_instance = Rook(team, 'b')
 
     def valid_move(self, vector):
         # valid move if it moves like a bishop
@@ -208,31 +208,34 @@ class Queen(Piece):
 
     
 class Pawn(Piece):
-    def __init__(self, piece_team, piece_type):
-        super().__init__(piece_team, piece_type)
-        self.piece_team = piece_team
+    def __init__(self, team, piece_type, played=False, en_passant=False):
+        super().__init__(team, piece_type)
+        self.team = team
         self.type = piece_type
-        self.played = False
+        self.played = played
+        self.en_passant = en_passant
 
         
     def valid_move(self, vector):
         vect_x, vect_y = vector[0], vector[1]
         # white pawns
         if vect_y == -1:
-            return self.piece_team == 'w'
+            return self.team == 'w'
         if vect_y == -2:
             if not self.played:
                 self.played = True
-                return self.piece_team == 'w'
+                self.en_passant = True
+                return self.team == 'w'
             return False
 
         # black pawns
         if vect_y == 1:
-            return self.piece_team == 'b'
+            return self.team == 'b'
         if vect_y == 2:
             if not self.played:
                 self.played = True
-                return self.piece_team == 'b'
+                self.en_passant = True
+                return self.team == 'b'
             return False
         
         # eating pieces
@@ -244,8 +247,23 @@ class Pawn(Piece):
         if not(abs(vector[0]) == abs(vector[1])):
             return True
         
-        # case where the pawn tries to play diagnolly
+        # case where the pawn tries to eat
         if grid[to_y][to_x] is not None:
             return True
         
+        if self.eat_en_passant(grid, from_x, from_y, to_x, to_y):
+            return True
+        
         return False
+    
+    def eat_en_passant(self, grid, from_x, from_y, to_y, to_x):
+        print('here')
+        if type(grid[from_y][to_x]) != type(Pawn('','')):
+            print('this shouldnt be happening')
+            return False
+        if not grid[from_y][to_x].en_passant:
+            print('nor this')
+            return False
+        grid[from_y][to_x] = None
+        print('but this yes')
+        return True
