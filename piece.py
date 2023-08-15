@@ -49,21 +49,18 @@ class Rook(Piece):
 
         # go right
         if vector[0] > 0:
-            print('right')
             for tiles in grid[from_y][from_x+1:to_x-1:]:
                 if tiles is not None:
                     return False
         
         # go left
         elif vector[0] < 0:
-            print('left')
             for tiles in grid[from_y][from_x-1:to_x+1:-1]:
                 if tiles is not None:
                     return False
         
         # go below
         elif vector[1] > 0:
-            print('under')
             for y in range(from_y+1, to_y):
                 if grid[y][from_x] is not None:
                     return False
@@ -112,33 +109,45 @@ class Bishop(Piece):
             return True
 
     def piece_in_between(self, grid, from_x, from_y, to_x, to_y, vector):
-        dist = self.get_dist(vector)
-        if dist == 1:
-            return True
+    #     dist = self.get_dist(vector)
+    #     if dist == 1:
+    #         return True
         
+    #     vect_x, vect_y = vector
+    #     # to top left
+    #     if vect_x < 0 and vect_y < 0:
+    #         for tile in grid[from_y-1:to_y+1:-1][from_x-1:to_x+1:-1]:
+    #             if tile is not None:
+    #                 return False
+
+    #     # to top right
+    #     elif vect_y < 0 and vect_x > 0:
+    #         for tile in grid[from_y-1:to_y+1:-1][from_x+1:to_x-1:]:
+    #             if tile != None:
+    #                 return False
+    #     # to bottom left
+    #     elif vect_y > 0 and vect_x < 0:
+    #         for tile in grid[from_y+1:to_y-1][from_x-1:to_x+1:-1]:
+    #             if tile != None:
+    #                 return False
+
+    #     # to bottom right 
+    #     elif vect_y > 0 and vect_x > 0:
+    #         for tile in grid[from_y+1:to_y-1][from_x+1:to_x-1]:
+    #             if tile != None:
+    #                 return False
+        
+    #     return True
         vect_x, vect_y = vector
-        # to top left
-        if vect_x < 0 and vect_y <0:
-            for tile in grid[from_y-1:to_y+1:-1][from_x-1:to_x+1:-1]:
-                if tile is not None:
-                    return False
-
-        # to top right
-        elif vect_y < 0 and vect_x > 0:
-            for tile in grid[from_y-1:to_y-1:-1][from_x+1:to_x-1:]:
-                if tile != None:
-                    return False
-        # to bottom left
-        elif vect_y > 0 and vect_x < 0:
-            for tile in grid[from_y+1:to_y-1][from_x-1:to_x+1:-1]:
-                if tile != None:
-                    return False
-
-        # to bottom right 
-        elif vect_y > 0 and vect_x > 0:
-            for tile in grid[from_y+1:to_y-1][from_x+1:to_x-1]:
-                if tile != None:
-                    return False
+        step_x = 1 if vect_x > 0 else -1
+        step_y = 1 if vect_y > 0 else -1
+        
+        current_x, current_y = from_x + step_x, from_y + step_y
+        while current_x != to_x and current_y != to_y:
+            if grid[current_y][current_x] is not None:
+                return False
+            current_x += step_x
+            current_y += step_y
         
         return True
 
@@ -241,6 +250,8 @@ class Pawn(Piece):
         # eating pieces
         if abs(vect_x) == abs(vect_y) == 1:
             return True
+        
+        return False
 
     def piece_in_between(self, grid, from_x, from_y, to_x, to_y, vector):
         # case where the pawn does not eat

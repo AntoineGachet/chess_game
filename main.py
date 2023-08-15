@@ -18,6 +18,12 @@ def play(board, joueur):
         vector = piece.get_dir(from_x, from_y, to_x, to_y)
         if board.move(joueur.team, from_x, from_y, to_x, to_y, vector):
             moved = True
+
+    board.update_grid(from_x, from_y, to_x, to_y)
+    if board.checked(board.grid, joueur.team):
+        board.update_grid(to_x, to_y, from_x, from_y)
+        play(board, joueur)
+    return 
         
             
 

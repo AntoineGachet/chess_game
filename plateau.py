@@ -52,6 +52,30 @@ class Plateau:
                 tile.en_passant = False
                 return 
         return
+    
+    def get_king_pos(self, grid, team):
+        for y in range(0, 8):
+            for x in range(0, 8):
+                if grid[y][x] is None:
+                    continue
+                if grid[y][x].type != 'K ':
+                    continue
+                if grid[y][x].team == team:
+                    return x, y
+
+    def checked(self, grid, team):
+        enemy_team = 'b' if team == 'w' else 'w'    
+        king_x, king_y = self.get_king_pos(grid, team)
+        for y in range(0, 8):
+            for x in range(0, 8):
+                if grid[y][x] is None:
+                    continue
+                elif grid[y][x].team != team:
+                    vector = grid[y][x].get_dir(x, y, king_x, king_y)
+                    if self.move(enemy_team, x, y, king_x, king_y, vector):
+                        return True
+        return False
+
 
     def update_grid(self, from_x, from_y, to_x, to_y):
         # Update the board with the new piece position
@@ -114,8 +138,7 @@ class Plateau:
         if not piece.valid_tile(self.grid, to_x, to_y):
             print("error: this piece is already occupied by one of your piece")
             return False
-                
-        self.update_grid(from_x, from_y, to_x, to_y)
+
         return True
 
     def __repr__(self):
