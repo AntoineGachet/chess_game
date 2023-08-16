@@ -109,35 +109,10 @@ class Bishop(Piece):
             return True
 
     def piece_in_between(self, grid, from_x, from_y, to_x, to_y, vector):
-    #     dist = self.get_dist(vector)
-    #     if dist == 1:
-    #         return True
+        dist = self.get_dist(vector)
+        if dist == 1:
+            return True
         
-    #     vect_x, vect_y = vector
-    #     # to top left
-    #     if vect_x < 0 and vect_y < 0:
-    #         for tile in grid[from_y-1:to_y+1:-1][from_x-1:to_x+1:-1]:
-    #             if tile is not None:
-    #                 return False
-
-    #     # to top right
-    #     elif vect_y < 0 and vect_x > 0:
-    #         for tile in grid[from_y-1:to_y+1:-1][from_x+1:to_x-1:]:
-    #             if tile != None:
-    #                 return False
-    #     # to bottom left
-    #     elif vect_y > 0 and vect_x < 0:
-    #         for tile in grid[from_y+1:to_y-1][from_x-1:to_x+1:-1]:
-    #             if tile != None:
-    #                 return False
-
-    #     # to bottom right 
-    #     elif vect_y > 0 and vect_x > 0:
-    #         for tile in grid[from_y+1:to_y-1][from_x+1:to_x-1]:
-    #             if tile != None:
-    #                 return False
-        
-    #     return True
         vect_x, vect_y = vector
         step_x = 1 if vect_x > 0 else -1
         step_y = 1 if vect_y > 0 else -1
@@ -157,7 +132,7 @@ class King(Piece):
         super().__init__(team, piece_type)
         self.team = team
         self.type = piece_type
-        self.played = played
+        self.played = played 
 
         
     def valid_move(self, vector):
