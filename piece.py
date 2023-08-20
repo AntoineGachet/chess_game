@@ -32,11 +32,17 @@ class Rook(Piece):
         self.type = piece_type
         self.played = played
 
+    def generate_moves(self, from_x, from_y):
+        files = {(from_x, y) for y in range(from_y+1, 8)} | {(from_x, y) for y in range(from_y-1, -1, -1)}     
+        lines = {(x, from_y) for x in range(from_x+1, 8)} | {(x, from_y) for x in range(from_x-1, -1, -1)}
+        moves = files | lines
+        return moves
+        
     def valid_move(self, vector):
         vect_x = vector[0]
         vect_y = vector[1]
         
-        if vect_x != 0 and vect_y != 0:
+        if (vect_x != 0 and vect_y == 0) or (vect_x == 0 and vect_y !=0):
             return False
         return True
         
@@ -81,6 +87,9 @@ class Knight(Piece):
         self.team = team
         self.type = piece_type
 
+    def generate_moves(self, from_x, from_y):
+        moves = {(from_x+x, from_y+y) for x in range(-2, 3, 4) for y in range(-1, 2, 2)} | {(from_x+x, from_y+y) for x in range(-1, 2, 2) for y in range(-2, 3, 4)}
+        return moves
 
     def valid_move(self, vector):
         # knight moves in a l-shape : 2 to one direction and 1 in another
@@ -102,6 +111,11 @@ class Bishop(Piece):
         self.team = team
         self.type = piece_type
 
+    def generate_moves(self, from_x, from_y):
+        diagnal_1 = {(from_x-step, from_y-step) for step in range(1, from_y+1) if from_x-step >= 0 and from_y-step >=0} | {(from_x+step, from_y+step) for step in range(1, 8)  if from_x+step <= 7 and from_y+step <= 7}
+        diagnal_2 = {(from_x-step, from_y+step) for step in range(1, from_y+1)  if from_x-step >= 0 and from_y+step <= 7} | {(from_x+step, from_y-step) for step in range(1, 8)  if from_x+step <= 7 and from_y-step >=0}
+        moves = diagnal_1 | diagnal_2
+        return moves
         
     def valid_move(self, vector):    
         vect_x, vect_y = vector
@@ -134,7 +148,11 @@ class King(Piece):
         self.type = piece_type
         self.played = played 
 
-        
+    def generate_moves(self, from_x, from_y):
+        moves = {(from_x+x, from_y+y) for x in range(-1, 2) for y in range(-1, 2)}
+        moves.remove((from_x, from_y))
+        return moves
+
     def valid_move(self, vector):
         vect_x = vector[0]
         dist = self.get_dist(vector)
@@ -178,6 +196,12 @@ class Queen(Piece):
 
         self.bishop_instance = Bishop(team, 'n')
         self.rook_instance = Rook(team, 'b')
+    
+    def generate_moves(self, from_x, from_y):
+        rook_moves = self.rook_instance.generate_moves(from_x, from_y)
+        bishop_moves = self.bishop_instance.generate_moves(from_x, from_y)
+        moves = rook_moves | bishop_moves
+        return moves
 
     def valid_move(self, vector):
         # valid move if it moves like a bishop
@@ -199,7 +223,14 @@ class Pawn(Piece):
         self.played = played
         self.en_passant = en_passant
 
-        
+    def generate_moves(self, from_x, from_y):
+        white_moves = {(from_x, from_y-1), (from_x, from_y-2), (from_x-1, from_y-1), (from_x+1, from_y-1)}    
+        black_moves = {(from_x, from_y+1), (from_x, from_y+2), (from_x-1, from_y+1), (from_x+1, from_y+1)}    
+
+        if self.team == 'w':
+            return white_moves
+        return black_moves
+
     def valid_move(self, vector):
         vect_x, vect_y = vector[0], vector[1]
         # white pawns
@@ -230,8 +261,15 @@ class Pawn(Piece):
 
     def piece_in_between(self, grid, from_x, from_y, to_x, to_y, vector):
         # case where the pawn does not eat
-        if not(abs(vector[0]) == abs(vector[1])):
+        if abs(vector[0]) == 1 and vector[1] == 0:
             return True
+        
+        if abs(vector[0]) == 2 and vector[1] == 0:
+            if grid[from_y][from_x+1] is None:
+                return True
+            if grid[from_y][from_x+2] is None:
+                return True
+            return False
         
         # case where the pawn tries to eat
         if grid[to_y][to_x] is not None:
@@ -243,13 +281,13 @@ class Pawn(Piece):
         return False
     
     def eat_en_passant(self, grid, from_x, from_y, to_y, to_x):
-        print('here')
         if type(grid[from_y][to_x]) != type(Pawn('','')):
-            print('this shouldnt be happening')
             return False
         if not grid[from_y][to_x].en_passant:
-            print('nor this')
             return False
         grid[from_y][to_x] = None
-        print('but this yes')
         return True
+    
+
+r = Pawn('w', 'r')
+print(r.generate_moves(4, 5))
