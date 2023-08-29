@@ -17,6 +17,7 @@ class Piece:
         return dist
    
     def valid_tile(self, grid, to_x, to_y):
+        print(to_x, to_y)
         tile = grid[to_y][to_x]
         if tile is None:
             return True
@@ -43,8 +44,8 @@ class Rook(Piece):
         vect_y = vector[1]
         
         if (vect_x != 0 and vect_y == 0) or (vect_x == 0 and vect_y !=0):
-            return False
-        return True
+            return True
+        return False
         
     def piece_in_between(self, grid, from_x, from_y, to_x, to_y, vector):
         # we need to handle the case where the dist is 1 and there is a piece
@@ -226,10 +227,14 @@ class Pawn(Piece):
     def generate_moves(self, from_x, from_y):
         white_moves = {(from_x, from_y-1), (from_x, from_y-2), (from_x-1, from_y-1), (from_x+1, from_y-1)}    
         black_moves = {(from_x, from_y+1), (from_x, from_y+2), (from_x-1, from_y+1), (from_x+1, from_y+1)}    
+        real_white_moves = set(filter(lambda cord: False if cord[0] > 7 or cord[0] < 0 or cord[1] > 7 or cord[1] < 0 else True, white_moves))
+        real_black_moves = set(filter(lambda cord: False if cord[0] > 7 or cord[0] < 0 or cord[1] > 7 or cord[1] < 0 else True, black_moves))
 
         if self.team == 'w':
-            return white_moves
-        return black_moves
+            # print(real_white_moves)
+            return real_white_moves
+        # print(real_black_moves)
+        return real_black_moves
 
     def valid_move(self, vector):
         vect_x, vect_y = vector[0], vector[1]
@@ -264,17 +269,27 @@ class Pawn(Piece):
         if abs(vector[0]) == 1 and vector[1] == 0:
             return True
         
-        if abs(vector[0]) == 2 and vector[1] == 0:
-            if grid[from_y][from_x+1] is None:
+        if self.team == 'w':
+            if vector[1] == -2 and vector[0] == 0:
+                if grid[from_y-1][from_x] is not None:
+                    return False
+                if grid[from_y-2][from_x] is not None:
+                    return False
                 return True
-            if grid[from_y][from_x+2] is None:
+        if self.team == 'b':
+            if vector[1] == 2 and vector[0] == 0:
+                if grid[from_y+1][from_x] is not None:
+                    return False
+                if grid[from_y+2][from_x] is not None:
+                    return False
                 return True
-            return False
         
         # case where the pawn tries to eat
-        if grid[to_y][to_x] is not None:
-            return True
-        
+        try: 
+            if grid[to_y][to_x] is not None:
+                return True
+        except IndexError as e:
+            return False
         if self.eat_en_passant(grid, from_x, from_y, to_x, to_y):
             return True
         
