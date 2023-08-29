@@ -4,13 +4,13 @@ from joueurs import Joueurs
 class Plateau:
     def __init__(self):
         self.grid = [        
-                [Rook('b', 'R '), Knight('b', 'N '), Bishop('b', 'B '), Queen('b', 'Q '), King('b', 'K '), Bishop('b', 'B '), Knight('b', 'N '), Rook('b', 'R ')],
-                [Pawn('b', 'P '), Pawn('b', 'P '), None, Pawn('b', 'P '), Pawn('b', 'P '), Pawn('b', 'P '), Pawn('b', 'P '), Pawn('b', 'P ')],
+                [Rook('b', '*R'), Knight('b', '*N'), Bishop('b', '*B'), Queen('b', 'Q '), King('b', 'K '), Bishop('b', 'B '), Knight('b', 'N '), Rook('b', 'R ')],
+                [Pawn('b', 'P '), Pawn('b', '*P'), None, Pawn('b', 'P '), None, Pawn('b', 'P '), Pawn('b', 'P '), Pawn('b', 'P ')],
                 [None, None, None, None, None, None, None, None],
                 [None, Pawn('w', 'P '), Pawn('b', 'P ', True, True), None, None, None, None, None],
                 [None, None, None, None, None, None, None, None],
                 [None, None, None, None, None, None, None, None],
-                [Pawn('w', 'P '), None, Pawn('w', 'P '), Pawn('w', 'P '), Pawn('w', 'P '), Pawn('w', 'P '), Pawn('w', 'P '), Pawn('w', 'P ')],
+                [Pawn('w', 'P '), None, Pawn('w', 'P '), Pawn('w', 'P '), Pawn('w', 'P '), None, None, Pawn('w', 'P ')],
                 [Rook('w', 'R '), Knight('w', 'N '), Bishop('w', 'B '), Queen('w', 'Q '), King('w', 'K '), Bishop('w', 'B '), Knight('w', 'N '), Rook('w', 'R ')],
             ]
         self.joueur_1 = Joueurs('w')
@@ -70,17 +70,46 @@ class Plateau:
             for x in range(0, 8):
                 if grid[y][x] is None:
                     continue
-                elif grid[y][x].team != team:
+                elif grid[y][x].team == enemy_team:
                     vector = grid[y][x].get_dir(x, y, king_x, king_y)
                     if self.move(enemy_team, x, y, king_x, king_y, vector):
                         return True
         return False
 
+    def checkmate(self, grid, team):
+        for y in range(0, 8):
+            for x in range(0, 8):
+                if grid[y][x] is None:
+                    continue
+                if grid[y][x].team != team:
+                    continue
+                if not self.try_all_moves(grid, team, grid[y][x], x, y):
+                    return False
+        return True
+
+    def try_all_moves(self, grid, team, piece, x, y):
+        moves = piece.generate_moves(x, y)
+        print(piece.type, x, y)
+        print(moves)
+        for to_x, to_y in moves:
+            vect = piece.get_dir(x, y, to_x, to_y)
+            if not self.move(team, x, y, to_x, to_y, vect):
+                continue
+            vect = piece.get_dir(x, y, to_x, to_y)
+            if piece.eat_en_passant
+
+            self.update_grid(x, y, to_x, to_y)
+            if not self.checked(grid, team):
+                self.update_grid(to_x, to_y, x, y)
+                return False
+            self.update_grid(to_x, to_y, x, y)
+        return True
 
     def update_grid(self, from_x, from_y, to_x, to_y):
         # Update the board with the new piece position
         self.grid[to_y][to_x] = self.grid[from_y][from_x]
         self.grid[from_y][from_x] = None
+        self.display_grid()
 
     def display_grid(self):
         files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
@@ -114,11 +143,24 @@ class Plateau:
             y = ord(y) - 97  # Adjusted for lowercase letters
             
             return x, y
+    
+    def outside_board(self, to_x, to_y):
+        if 0 <= to_x <= 7 and 0 <= to_y <= 7:
+            return False
+        return True
         
     def move(self, team, from_x, from_y, to_x, to_y, vector):
         piece = self.grid[from_y][from_x]
+
+        if (from_x, from_y) == (to_x, to_y):
+            print('error: you must move your piece')
+            return False
+
         if piece.team != team:
             print('error: You are trying to move an enemy piece')
+            return False
+        
+        if self.outside_board(to_x, to_y):
             return False
 
         if not piece.valid_move(vector):
@@ -126,7 +168,7 @@ class Plateau:
             return False
     
         if not piece.piece_in_between(self.grid, from_x, from_y, to_x, to_y, vector):
-            # the only one returning an empty string is the king trying to castle
+            #  the only one returning an empty string is the king trying to castle
             if piece.piece_in_between(self.grid, from_x, from_y, to_x, to_y, vector) == '':
                 self.castle(self.grid, from_x, from_y, to_x, to_x, vector)
                 return True
