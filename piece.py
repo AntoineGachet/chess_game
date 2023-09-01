@@ -17,7 +17,6 @@ class Piece:
         return dist
    
     def valid_tile(self, grid, to_x, to_y):
-        print(to_x, to_y)
         tile = grid[to_y][to_x]
         if tile is None:
             return True
@@ -185,7 +184,6 @@ class King(Piece):
         if vector[0] < 0:
             for tiles in grid[from_y][3:1:-1]:
                 if tiles is not None:
-                    print(tiles)
                     return False
         return ''
 
@@ -285,24 +283,22 @@ class Pawn(Piece):
                 return True
         
         # case where the pawn tries to eat
-        try: 
-            if grid[to_y][to_x] is not None:
-                return True
-        except IndexError as e:
-            return False
-        if self.eat_en_passant(grid, from_x, from_y, to_x, to_y):
+        if grid[to_y][to_x] is not None:
+            return True
+
+        print(from_y, to_x)
+        if self.eat_en_passant(grid, from_y, from_x, to_x):
             return True
         
         return False
     
-    def eat_en_passant(self, grid, from_x, from_y, to_y, to_x):
+    def eat_en_passant(self, grid, from_y, from_x, to_x):
+        print(from_y, to_x)
         if type(grid[from_y][to_x]) != type(Pawn('','')):
+            return False
+        if grid[from_y][to_x].team == grid[from_y][from_x].team:
             return False
         if not grid[from_y][to_x].en_passant:
             return False
         grid[from_y][to_x] = None
         return True
-    
-
-r = Pawn('w', 'r')
-print(r.generate_moves(4, 5))
