@@ -12,6 +12,10 @@ def play(board, joueur):
 
     while not moved:
         move_from, move_to = joueur.ask_move()
+        print(move_from, move_to)
+        if move_from or move_to == "exit":
+            print("You decided to put an end to the game")
+            exit()
         from_x, from_y = board.translate_move(move_from)
         to_x, to_y = board.translate_move(move_to)
     
